@@ -1,6 +1,6 @@
 {
   "name": "higlass-dynseq",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Dynamic sequence track for HiGlass",
   "repository": "https://github.com/kundajelab/higlass-dynseq",
   "author": "Arjun Barrett",
