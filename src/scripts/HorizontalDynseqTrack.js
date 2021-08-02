@@ -363,7 +363,6 @@ export default function HorizontalDynseqTrack(HGC, ...args) {
       return;
     }
   }
-
   return new HorizontalDynseqTrack(...args);
 }
 
@@ -443,13 +442,5 @@ HorizontalDynseqTrack.config = {
     },
     defaultFontColor: '#ffb347'
     */
-  },
-  defaultOptionsByTheme: {
-    [THEME_DARK]: {
-      labelColor: '#ffffff',
-      labelBackgroundColor: '#000000',
-      trackBorderColor: '#ffffff',
-      mousePositionColor: '#ffffff',
-    },
-  },
+  }
 };
