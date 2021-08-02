@@ -96,3 +96,5 @@ Multiple DynSeq tracks that use the same FASTA sequence but different datasets w
 
 ## Support
 [File an issue](https://github.com/kundajelab/higlass-dynseq/issues) if you have found a bug, would like help resolving a problem, or want to ask a question about using the track.
+
+Alternatively, contact [Arjun Barrett](https://github.com/101arrowz) for more information.
