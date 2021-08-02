@@ -1,0 +1,24 @@
+{
+  "name": "higlass-dynseq",
+  "version": "0.1.0",
+  "description": "Dynamic sequence track for HiGlass",
+  "repository": "https://github.com/kundajelab/higlass-dynseq",
+  "author": "Arjun Barrett",
+  "license": "MIT",
+  "source": "src/index.js",
+  "main": "./dist/higlass-dynseq.js",
+  "exports": "./dist/higlass-dynseq.modern.js",
+  "module": "./dist/higlass-dynseq.module.js",
+  "unpkg": "./dist/higlass-dynseq.umd.js",
+  "jsdelivr": "./dist/higlass-dynseq.umd.js",
+  "scripts": {
+    "build": "microbundle --no-sourcemap",
+    "prepare": "yarn build"
+  },
+  "dependencies": {
+    "higlass-register": "^0.3.0"
+  },
+  "devDependencies": {
+    "microbundle": "^0.13.3"
+  }
+}
