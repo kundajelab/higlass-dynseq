@@ -39,7 +39,7 @@ The DynSeq track depends on both a data source (e.g. bigWig) and a sequence sour
       // The first config is the data source
       {
         "server": "http://localhost:8001/api/v1",
-        "tilesetUid": "my-bigwig-tileset",
+        "tilesetUid": "my-bigwig-tileset"
       },
       // The second config is the FASTA sequence source
       {
