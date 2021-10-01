@@ -180,6 +180,7 @@ export default function HDT(HGC, ...args) {
         maxFontSize / LARGE_FONT_SIZE
       );
       const simFontSize = scaleChange * LARGE_FONT_SIZE;
+
       if (!sequence || simFontSize < minFontSize) {
         seqContainer.alpha = 0;
         lineGraphics.alpha = 1;
@@ -288,7 +289,8 @@ export default function HDT(HGC, ...args) {
         if (maxZoom === undefined) {
           maxZoom = this.tilesetInfo.resolutions.length;
         }
-        this.calculateZoomLevel();
+        this.zoomLevel = this.calculateZoomLevel();
+
         // At most 2048 characters on screen
         const shouldFetchFasta = maxZoom - this.zoomLevel < 2;
         this.dataFetcher.setFilter(_ => shouldFetchFasta, 1)
@@ -304,6 +306,7 @@ export default function HDT(HGC, ...args) {
       this.yScale(newYScale);
 
       this.refreshTiles();
+
 
       this.draw();
 
