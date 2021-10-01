@@ -288,7 +288,7 @@ export default function HDT(HGC, ...args) {
         if (maxZoom === undefined) {
           maxZoom = this.tilesetInfo.resolutions.length;
         }
-        this.calculateZoomLevel();
+        this.zoomLevel = this.calculateZoomLevel();
         // At most 2048 characters on screen
         const shouldFetchFasta = maxZoom - this.zoomLevel < 2;
         this.dataFetcher.setFilter(_ => shouldFetchFasta, 1)
