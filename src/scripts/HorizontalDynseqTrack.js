@@ -105,6 +105,9 @@ export default function HDT(HGC, ...args) {
         G: 'rgb(56, 153, 199)',
         N: 'rgb(133, 133, 133)'
       };
+      this.textOptions = textOptions;
+      this.fontColors = fontColors;
+
       this.maxCharWidth = 0;
       this.maxStandardCharWidth = 0;
       this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(char => {
@@ -149,6 +152,7 @@ export default function HDT(HGC, ...args) {
 
       this.valueScale = vs;
 
+      tile.path = '';
       lineGraphics.clear();
       seqContainer.removeChildren();
 
@@ -180,6 +184,7 @@ export default function HDT(HGC, ...args) {
         maxFontSize / LARGE_FONT_SIZE
       );
       const simFontSize = scaleChange * LARGE_FONT_SIZE;
+
       if (!sequence || simFontSize < minFontSize) {
         seqContainer.alpha = 0;
         lineGraphics.alpha = 1;
@@ -217,6 +222,8 @@ export default function HDT(HGC, ...args) {
           sprite.scale.set(scaleChange, (middle - yPos) / sprite.height);
           // sprite.anchor.set(0, 1);
           sprite.anchor.set(0.5, 1);
+          sprite.letter = String.fromCharCode(sequence.charCodeAt(i));
+
           seqContainer.addChild(sprite);
           // graphics.lineStyle(1, 0x000000)[i ? 'lineTo' : 'moveTo'](xPos, this.valueScale(dataValue + offsetValue));
         }
@@ -239,30 +246,15 @@ export default function HDT(HGC, ...args) {
           const yPos = this.valueScale(data[i] + offsetValue);
           if (yPos != middle && i) {
             lineGraphics.lineTo(xPos, yPos);
+            // We'll store a representation of the line as an SVG path
+            // so that we can use it in exportSVG.
+            tile.path += `L${xPos},${yPos}`
           } else {
             lineGraphics.moveTo(xPos, yPos);
+            tile.path += `M${xPos},${yPos}`
           }
         }
       }
-  
-      
-
-      // for (let i = 0; i < sequence.length; i++) {
-      //   const charInd = (sequence.charCodeAt(i) & 95) - 65;
-      //   const xPos = this._xScale(tileXScale(i));
-
-      //   if (tileXScale(i) > this.tilesetInfo.max_pos[0]) {
-      //     // Data is in the last tile and extends beyond the coordinate system.
-      //     break;
-      //   }
-
-      //   const sprite = new PIXI.Sprite(this.chars[charInd]);
-      //   sprite.position.x = xPos + width / 2 - this.chars[charInd].width / 2;
-      //   sprite.position.y = this.dimensions[1] / 2;
-      //   sprite.scale.set(1, 2 * (Math.random() - 0.5));
-      //   sprite.anchor.set(0, 1);
-      //   graphics.addChild(sprite);
-      // }
     }
 
     // Copied from HorizonatalLine1DPixiTrack.js
@@ -289,6 +281,7 @@ export default function HDT(HGC, ...args) {
           maxZoom = this.tilesetInfo.resolutions.length;
         }
         this.zoomLevel = this.calculateZoomLevel();
+
         // At most 2048 characters on screen
         const shouldFetchFasta = maxZoom - this.zoomLevel < 2;
         this.dataFetcher.setFilter(_ => shouldFetchFasta, 1)
@@ -359,8 +352,59 @@ export default function HDT(HGC, ...args) {
      *
      */
     exportSVG() {
-      // TODO
-      return;
+      let track = null;
+      let base = null;
+
+      [base, track] = super.exportSVG();
+
+      base.setAttribute('class', 'exported-arcs-track');
+      const output = document.createElement('g');
+
+      track.appendChild(output);
+      output.setAttribute(
+        'transform',
+        `translate(${this.position[0]},${this.position[1]})`
+      );
+
+      const strokeColor = this.options.lineStrokeColor ? this.options.lineStrokeColor : 'blue';
+      const strokeWidth = this.options.lineStrokeWidth ? this.options.lineStrokeWidth : 1;
+
+      this.visibleAndFetchedTiles().forEach((tile) => {
+        // First we'll draw the line element.
+        const path = document.createElement('path');
+        path.setAttribute('d', tile.path)
+        path.setAttribute('stroke-width', strokeWidth);
+        path.setAttribute('stroke', strokeColor);
+        path.setAttribute('fill', 'transparent');
+        path.setAttribute('opacity', tile.lineGraphics.alpha);
+
+        output.appendChild(path);
+
+        // Then we'll draw each individual letter
+        for (let sprite of tile.seqContainer.children) {
+          const letter = sprite.letter;
+          const g = document.createElement('g')
+          const text = document.createElement('text');
+
+          g.setAttribute(
+            'transform',
+            `translate(${sprite.position.x},${sprite.position.y})scale(${sprite.scale.x}, ${sprite.scale.y})`
+          );
+          g.setAttribute('opacity', tile.seqContainer.alpha);
+          text.setAttribute('font-family', this.textOptions.fontFamily);
+          text.setAttribute('font-weight', this.textOptions.fontWeight);
+          text.setAttribute('font-size', this.textOptions.fontSize);
+
+          text.setAttribute('fill', this.fontColors[letter]);
+          text.setAttribute('text-anchor', 'middle')
+          text.innerText = letter;
+
+
+          g.appendChild(text);
+          output.appendChild(g);
+        }
+      });
+      return [base, track];
     }
   }
   return new HorizontalDynseqTrack(...args);
