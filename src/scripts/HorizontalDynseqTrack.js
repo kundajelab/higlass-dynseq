@@ -107,7 +107,7 @@ export default function HDT(HGC, ...args) {
       };
       this.textOptions = textOptions;
       this.fontColors = fontColors;
-      
+
       this.maxCharWidth = 0;
       this.maxStandardCharWidth = 0;
       this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(char => {
@@ -246,6 +246,8 @@ export default function HDT(HGC, ...args) {
           const yPos = this.valueScale(data[i] + offsetValue);
           if (yPos != middle && i) {
             lineGraphics.lineTo(xPos, yPos);
+            // We'll store a representation of the line as an SVG path
+            // so that we can use it in exportSVG.
             tile.path += `L${xPos},${yPos}`
           } else {
             lineGraphics.moveTo(xPos, yPos);
@@ -253,25 +255,6 @@ export default function HDT(HGC, ...args) {
           }
         }
       }
-  
-      
-
-      // for (let i = 0; i < sequence.length; i++) {
-      //   const charInd = (sequence.charCodeAt(i) & 95) - 65;
-      //   const xPos = this._xScale(tileXScale(i));
-
-      //   if (tileXScale(i) > this.tilesetInfo.max_pos[0]) {
-      //     // Data is in the last tile and extends beyond the coordinate system.
-      //     break;
-      //   }
-
-      //   const sprite = new PIXI.Sprite(this.chars[charInd]);
-      //   sprite.position.x = xPos + width / 2 - this.chars[charInd].width / 2;
-      //   sprite.position.y = this.dimensions[1] / 2;
-      //   sprite.scale.set(1, 2 * (Math.random() - 0.5));
-      //   sprite.anchor.set(0, 1);
-      //   graphics.addChild(sprite);
-      // }
     }
 
     // Copied from HorizonatalLine1DPixiTrack.js
@@ -384,26 +367,31 @@ export default function HDT(HGC, ...args) {
         `translate(${this.position[0]},${this.position[1]})`
       );
 
-      const strokeColor = this.options.strokeColor
-        ? this.options.strokeColor
-        : 'blue';
-      const strokeWidth = this.options.strokeWidth
-        ? this.options.strokeWidth
-        : 2;
+      const strokeColor = this.options.lineStrokeColor ? this.options.lineStrokeColor : 'blue';
+      const strokeWidth = this.options.lineStrokeWidth ? this.options.lineStrokeWidth : 1;
 
       this.visibleAndFetchedTiles().forEach((tile) => {
-        console.log(tile)
+        // First we'll draw the line element.
+        const path = document.createElement('path');
+        path.setAttribute('d', tile.path)
+        path.setAttribute('stroke-width', strokeWidth);
+        path.setAttribute('stroke', strokeColor);
+        path.setAttribute('fill', 'transparent');
+        path.setAttribute('opacity', tile.lineGraphics.alpha);
 
+        output.appendChild(path);
+
+        // Then we'll draw each individual letter
         for (let sprite of tile.seqContainer.children) {
           const letter = sprite.letter;
           const g = document.createElement('g')
           const text = document.createElement('text');
 
-      g.setAttribute(
-        'transform',
-        `translate(${sprite.position.x},${sprite.position.y})scale(${sprite.scale.x}, ${sprite.scale.y})`
-      );
-
+          g.setAttribute(
+            'transform',
+            `translate(${sprite.position.x},${sprite.position.y})scale(${sprite.scale.x}, ${sprite.scale.y})`
+          );
+          g.setAttribute('opacity', tile.seqContainer.alpha);
           text.setAttribute('font-family', this.textOptions.fontFamily);
           text.setAttribute('font-weight', this.textOptions.fontWeight);
           text.setAttribute('font-size', this.textOptions.fontSize);
@@ -415,25 +403,7 @@ export default function HDT(HGC, ...args) {
 
           g.appendChild(text);
           output.appendChild(g);
-
         }
-        // this.polys = [];
-
-        // // call drawTile with storePolyStr = true so that
-        // // we record path strings to use in the SVG
-        // this.drawTileAsSvg(tile, true);
-
-        // for (const { polyStr, opacity } of this.polys) {
-        //   const g = document.createElement('path');
-        //   g.setAttribute('fill', 'transparent');
-        //   g.setAttribute('stroke', strokeColor);
-        //   g.setAttribute('stroke-width', strokeWidth);
-        //   g.setAttribute('stroke-opacity', opacity);
-        //   g.style.fillOpacity = 0;
-
-        //   g.setAttribute('d', polyStr);
-        //   output.appendChild(g);
-        // }
       });
       return [base, track];
     }
