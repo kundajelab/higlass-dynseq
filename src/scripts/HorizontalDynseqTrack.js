@@ -105,6 +105,9 @@ export default function HDT(HGC, ...args) {
         G: 'rgb(56, 153, 199)',
         N: 'rgb(133, 133, 133)'
       };
+      this.textOptions = textOptions;
+      this.fontColors = fontColors;
+      
       this.maxCharWidth = 0;
       this.maxStandardCharWidth = 0;
       this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(char => {
@@ -149,6 +152,7 @@ export default function HDT(HGC, ...args) {
 
       this.valueScale = vs;
 
+      tile.path = '';
       lineGraphics.clear();
       seqContainer.removeChildren();
 
@@ -218,6 +222,8 @@ export default function HDT(HGC, ...args) {
           sprite.scale.set(scaleChange, (middle - yPos) / sprite.height);
           // sprite.anchor.set(0, 1);
           sprite.anchor.set(0.5, 1);
+          sprite.letter = String.fromCharCode(sequence.charCodeAt(i));
+
           seqContainer.addChild(sprite);
           // graphics.lineStyle(1, 0x000000)[i ? 'lineTo' : 'moveTo'](xPos, this.valueScale(dataValue + offsetValue));
         }
@@ -240,8 +246,10 @@ export default function HDT(HGC, ...args) {
           const yPos = this.valueScale(data[i] + offsetValue);
           if (yPos != middle && i) {
             lineGraphics.lineTo(xPos, yPos);
+            tile.path += `L${xPos},${yPos}`
           } else {
             lineGraphics.moveTo(xPos, yPos);
+            tile.path += `M${xPos},${yPos}`
           }
         }
       }
@@ -362,8 +370,72 @@ export default function HDT(HGC, ...args) {
      *
      */
     exportSVG() {
-      // TODO
-      return;
+      let track = null;
+      let base = null;
+
+      [base, track] = super.exportSVG();
+
+      base.setAttribute('class', 'exported-arcs-track');
+      const output = document.createElement('g');
+
+      track.appendChild(output);
+      output.setAttribute(
+        'transform',
+        `translate(${this.position[0]},${this.position[1]})`
+      );
+
+      const strokeColor = this.options.strokeColor
+        ? this.options.strokeColor
+        : 'blue';
+      const strokeWidth = this.options.strokeWidth
+        ? this.options.strokeWidth
+        : 2;
+
+      this.visibleAndFetchedTiles().forEach((tile) => {
+        console.log(tile)
+
+        for (let sprite of tile.seqContainer.children) {
+          const letter = sprite.letter;
+          const g = document.createElement('g')
+          const text = document.createElement('text');
+
+      g.setAttribute(
+        'transform',
+        `translate(${sprite.position.x},${sprite.position.y})scale(${sprite.scale.x}, ${sprite.scale.y})`
+      );
+
+          text.setAttribute('font-family', this.textOptions.fontFamily);
+          text.setAttribute('font-weight', this.textOptions.fontWeight);
+          text.setAttribute('font-size', this.textOptions.fontSize);
+
+          text.setAttribute('fill', this.fontColors[letter]);
+          text.setAttribute('text-anchor', 'middle')
+          text.innerText = letter;
+
+
+          g.appendChild(text);
+          output.appendChild(g);
+
+        }
+        // this.polys = [];
+
+        // // call drawTile with storePolyStr = true so that
+        // // we record path strings to use in the SVG
+        // this.drawTileAsSvg(tile, true);
+
+        // for (const { polyStr, opacity } of this.polys) {
+        //   const g = document.createElement('path');
+        //   g.setAttribute('fill', 'transparent');
+        //   g.setAttribute('stroke', strokeColor);
+        //   g.setAttribute('stroke-width', strokeWidth);
+        //   g.setAttribute('stroke-opacity', opacity);
+        //   g.style.fillOpacity = 0;
+
+        //   g.setAttribute('d', polyStr);
+        //   output.appendChild(g);
+        // }
+      });
+      return [base, track];
     }
   }
   return new HorizontalDynseqTrack(...args);
