@@ -298,7 +298,6 @@ export default function HDT(HGC, ...args) {
 
       this.refreshTiles();
 
-
       this.draw();
 
       const isValueScaleLocked = this.isValueScaleLocked();
