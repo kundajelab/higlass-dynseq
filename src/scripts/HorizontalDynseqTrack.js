@@ -6,10 +6,12 @@ const revComps = {
   c: 'g',
   g: 'c',
   t: 'a',
+  n: 'n',
   A: 'T',
   C: 'G',
   G: 'C',
   T: 'A',
+  N: 'N',
 };
 
 export default function HDT(HGC, ...args) {
