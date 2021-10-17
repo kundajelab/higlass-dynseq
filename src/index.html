@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@reservoirgenomics/resglass@1.17.6/dist/hglib.css"
+    />
+
+    <script crossorigin src="https://unpkg.com/higlass-multi-tileset"></script>
+    <script crossorigin src="../dist/higlass-dynseq.umd.js"></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/@reservoirgenomics/resglass@1.17.6/dist/hglib.js"
+    ></script>
+    <style type="text/css">
+      #demo {
+        position: absolute;
+        left: 1rem;
+        top: 1rem;
+        bottom: 1rem;
+        right: 1rem;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="demo"></div>
+  </body>
+  <script>
+    const viewconf = {
+  "editable": true,
+  "trackSourceServers": [
+    "/api/v1",
+    "http://higlass.io/api/v1"
+  ],
+  "exportViewUrl": "/api/v1/viewconfs",
+  "views": [
+    {
+      "initialXDomain": [
+        51126826.44442773,
+        51126980.452596255
+      ],
+      "initialYDomain": [
+        40762336.89596577,
+        40762386.60094324
+      ],
+      "tracks": {
+        "top": [
+          {
+            "uid": "SSNxgostTXmxzG54yg86-g",
+            "type": "combined",
+            "contents": [
+              {
+                "type": "horizontal-gene-annotations",
+                "uid": "AVr9NH3AR3ifIIOICar_rw",
+                "tilesetUid": "bIg4LpF5TYynHUBGjUf4dg",
+                "server": "https://resgen.io/api/v1",
+                "options": {
+                  "fontSize": 10,
+                  "labelColor": "black",
+                  "labelBackgroundColor": "#ffffff",
+                  "labelPosition": "hidden",
+                  "labelLeftMargin": 0,
+                  "labelRightMargin": 0,
+                  "labelTopMargin": 0,
+                  "labelBottomMargin": 0,
+                  "minHeight": 24,
+                  "plusStrandColor": "blue",
+                  "minusStrandColor": "red",
+                  "trackBorderWidth": 0,
+                  "trackBorderColor": "black",
+                  "showMousePosition": false,
+                  "mousePositionColor": "#000000",
+                  "geneAnnotationHeight": 16,
+                  "geneLabelPosition": "outside",
+                  "geneStrandSpacing": 4,
+                  "name": "Gene Annotations (dm3, sorted)"
+                },
+                "width": 20,
+                "height": 90
+              }
+            ],
+            "height": 90,
+            "options": {}
+          },
+          {
+            "uid": "JgO-OoA5SzaGNUj5gdoD6A",
+            "type": "combined",
+            "contents": [
+              {
+                "type": "bar",
+                "uid": "KfuNS3v7QNGwx858BQ9UKQ",
+                "tilesetUid": "AjaQYE8mSmeVF8v2sWzoog",
+                "server": "https://resgen.io/api/v1",
+                "options": {
+                  "align": "bottom",
+                  "labelColor": "[glyph-color]",
+                  "labelPosition": "topLeft",
+                  "labelLeftMargin": 0,
+                  "labelRightMargin": 0,
+                  "labelTopMargin": 0,
+                  "labelBottomMargin": 0,
+                  "labelShowResolution": false,
+                  "labelShowAssembly": true,
+                  "axisLabelFormatting": "scientific",
+                  "axisPositionHorizontal": "right",
+                  "barFillColor": "red",
+                  "valueScaling": "linear",
+                  "trackBorderWidth": 0,
+                  "trackBorderColor": "black",
+                  "labelTextOpacity": 0.4,
+                  "barOpacity": 1,
+                  "name": "S2_dev_STARRseq_merged.bw"
+                },
+                "width": 610,
+                "height": 51
+              }
+            ],
+            "height": 51,
+            "options": {}
+          },
+          {
+            "uid": "H05iVOBhSF6gjoKPYaxVwQ",
+            "type": "combined",
+            "contents": [
+              {
+                "type": "bar",
+                "uid": "Qyd7EU_6T-utNCCAJ7-R1g",
+                "tilesetUid": "FNNBFnltRdKPIhoCQ9XBQA",
+                "server": "https://resgen.io/api/v1",
+                "options": {
+                  "align": "bottom",
+                  "labelColor": "[glyph-color]",
+                  "labelPosition": "topLeft",
+                  "labelLeftMargin": 0,
+                  "labelRightMargin": 0,
+                  "labelTopMargin": 0,
+                  "labelBottomMargin": 0,
+                  "labelShowResolution": false,
+                  "labelShowAssembly": true,
+                  "axisLabelFormatting": "scientific",
+                  "axisPositionHorizontal": "right",
+                  "barFillColor": "red",
+                  "valueScaling": "linear",
+                  "trackBorderWidth": 0,
+                  "trackBorderColor": "black",
+                  "labelTextOpacity": 0.4,
+                  "barOpacity": 1,
+                  "name": "deepstar_dev.bw"
+                },
+                "width": 610,
+                "height": 40
+              }
+            ],
+            "height": 40,
+            "options": {}
+          },
+          {
+            "uid": "Q1yjICHIT-GxuW1vqdZKmQ",
+            "type": "combined",
+            "contents": [
+              {
+                "type": "horizontal-dynseq",
+                "options": {
+                  "labelColor": "black",
+                  "labelPosition": "topLeft",
+                  "labelLeftMargin": 0,
+                  "labelRightMargin": 0,
+                  "labelTopMargin": 0,
+                  "labelBottomMargin": 0,
+                  "labelBackgroundColor": "white",
+                  "labelShowResolution": false,
+                  "labelShowAssembly": true,
+                  "axisLabelFormatting": "scientific",
+                  "axisPositionHorizontal": "right",
+                  "lineStrokeColor": "red",
+                  "lineStrokeWidth": 1,
+                  "valueScaling": "linear",
+                  "trackBorderWidth": 0,
+                  "trackBorderColor": "black",
+                  "labelTextOpacity": 0.4,
+                  "showMousePosition": false,
+                  "minHeight": 20,
+                  "mousePositionColor": "#000000",
+                  "showTooltip": false,
+                  "name": "DeepSTARR_dev_contr_scores.bw"
+                },
+                "data": {
+                  "type": "multi-tileset",
+                  "configs": [
+                    {
+                      "server": "https://resgen.io/api/v1",
+                      "tilesetUid": "DJO2Fq0ES3OmKFZe8lpzYg"
+                    },
+                    {
+                      "server": "https://resgen.io/api/v1",
+                      "tilesetUid": "IB6uPoqIRhKhHD7ApSGMaw"
+                    }
+                  ]
+                },
+                "height": 60,
+                "uid": "ZgFb03FvSeiZu9y2AT9hPQ"
+              }
+            ],
+            "height": 60,
+            "options": {}
+          },
+          {
+            "uid": "N6c8T6BSRB22wrSGf-0SmQ",
+            "type": "combined",
+            "contents": [
+              {
+                "type": "horizontal-dynseq",
+                "options": {
+                  "labelColor": "black",
+                  "labelPosition": "topLeft",
+                  "labelLeftMargin": 0,
+                  "labelRightMargin": 0,
+                  "labelTopMargin": 0,
+                  "labelBottomMargin": 0,
+                  "labelBackgroundColor": "white",
+                  "labelShowResolution": false,
+                  "labelShowAssembly": true,
+                  "axisLabelFormatting": "scientific",
+                  "axisPositionHorizontal": "right",
+                  "lineStrokeColor": "blue",
+                  "lineStrokeWidth": 1,
+                  "valueScaling": "linear",
+                  "trackBorderWidth": 0,
+                  "trackBorderColor": "black",
+                  "labelTextOpacity": 0.4,
+                  "showMousePosition": false,
+                  "minHeight": 20,
+                  "mousePositionColor": "#000000",
+                  "showTooltip": false,
+                  "name": "DeepSTARR_hk_contr_scores.bw"
+                },
+                "data": {
+                  "type": "multi-tileset",
+                  "configs": [
+                    {
+                      "server": "https://resgen.io/api/v1",
+                      "tilesetUid": "MF-gGmCzRCOvEucU8IvgMA"
+                    },
+                    {
+                      "server": "https://resgen.io/api/v1",
+                      "tilesetUid": "IB6uPoqIRhKhHD7ApSGMaw"
+                    }
+                  ]
+                },
+                "height": 60,
+                "uid": "ZEuewpNJQoiSENiG149UQg"
+              }
+            ],
+            "height": 60,
+            "options": {}
+          },
+          {
+            "uid": "IR3M_66ETHeqqUV2qNfPdg",
+            "type": "combined",
+            "contents": [
+              {
+                "type": "chromosome-labels",
+                "uid": "UDiMCpDISISZ_iMSf9N09A",
+                "tilesetUid": "U_1Xyr1uRE25dbxZlnsH9Q",
+                "server": "https://resgen.io/api/v1",
+                "options": {
+                  "color": "#808080",
+                  "stroke": "#ffffff",
+                  "fontSize": 12,
+                  "fontIsLeftAligned": false,
+                  "showMousePosition": false,
+                  "mousePositionColor": "#000000"
+                },
+                "width": 610,
+                "height": 30
+              }
+            ],
+            "height": 30,
+            "options": {}
+          },
+          {
+            "uid": "bgTunWfuQb-CZthixjMn7A",
+            "type": "combined",
+            "contents": [
+              {
+                "type": "bar",
+                "uid": "UIda8ZNnRjq8HdpR8q2opg",
+                "tilesetUid": "eLfL9Nw9S2yb5Baf9h3Yuw",
+                "server": "https://resgen.io/api/v1",
+                "options": {
+                  "align": "bottom",
+                  "labelColor": "[glyph-color]",
+                  "labelPosition": "topLeft",
+                  "labelLeftMargin": 0,
+                  "labelRightMargin": 0,
+                  "labelTopMargin": 0,
+                  "labelBottomMargin": 0,
+                  "labelShowResolution": false,
+                  "labelShowAssembly": true,
+                  "axisLabelFormatting": "scientific",
+                  "axisPositionHorizontal": "right",
+                  "barFillColor": "blue",
+                  "valueScaling": "linear",
+                  "trackBorderWidth": 0,
+                  "trackBorderColor": "black",
+                  "labelTextOpacity": 0.4,
+                  "barOpacity": 1,
+                  "name": "deepstar_hk.bw"
+                },
+                "width": 610,
+                "height": 45
+              }
+            ],
+            "height": 45,
+            "options": {}
+          },
+          {
+            "uid": "JLORcA7TTJ25r5bFHm0oRQ",
+            "type": "combined",
+            "contents": [
+              {
+                "type": "bar",
+                "uid": "MdNAQekzQSePFpnD55PUbw",
+                "tilesetUid": "I-Bbt_ruREOpyoKTK2v4pQ",
+                "server": "https://resgen.io/api/v1",
+                "options": {
+                  "align": "bottom",
+                  "labelColor": "[glyph-color]",
+                  "labelPosition": "topLeft",
+                  "labelLeftMargin": 0,
+                  "labelRightMargin": 0,
+                  "labelTopMargin": 0,
+                  "labelBottomMargin": 0,
+                  "labelShowResolution": false,
+                  "labelShowAssembly": true,
+                  "axisLabelFormatting": "scientific",
+                  "axisPositionHorizontal": "right",
+                  "barFillColor": "blue",
+                  "valueScaling": "linear",
+                  "trackBorderWidth": 0,
+                  "trackBorderColor": "black",
+                  "labelTextOpacity": 0.4,
+                  "barOpacity": 1,
+                  "name": "S2_hk_STARRseq_merged.bw"
+                },
+                "width": 610,
+                "height": 56
+              }
+            ],
+            "height": 56,
+            "options": {}
+          }
+        ],
+        "left": [],
+        "center": [],
+        "bottom": [],
+        "right": [],
+        "whole": [],
+        "gallery": []
+      },
+      "layout": {
+        "w": 12,
+        "h": 6,
+        "x": 0,
+        "y": 0
+      },
+      "uid": "Rq_7BR_1SsOzuMc32R15-Q"
+    }
+  ],
+  "zoomLocks": {
+    "locksByViewUid": {},
+    "locksDict": {}
+  },
+  "locationLocks": {
+    "locksByViewUid": {},
+    "locksDict": {}
+  },
+  "valueScaleLocks": {
+    "locksByViewUid": {
+      "Rq_7BR_1SsOzuMc32R15-Q.KfuNS3v7QNGwx858BQ9UKQ": "ZEPsdP7lQRK9ku33KrE0Wg",
+      "Rq_7BR_1SsOzuMc32R15-Q.MdNAQekzQSePFpnD55PUbw": "SeamcMRxSTiDAPTzfuvhjQ"
+    },
+    "locksDict": {
+      "ZEPsdP7lQRK9ku33KrE0Wg": {
+        "Rq_7BR_1SsOzuMc32R15-Q.KfuNS3v7QNGwx858BQ9UKQ": {
+          "view": "Rq_7BR_1SsOzuMc32R15-Q",
+          "track": "KfuNS3v7QNGwx858BQ9UKQ"
+        },
+        "uid": "ZEPsdP7lQRK9ku33KrE0Wg"
+      },
+      "SeamcMRxSTiDAPTzfuvhjQ": {
+        "Rq_7BR_1SsOzuMc32R15-Q.MdNAQekzQSePFpnD55PUbw": {
+          "view": "Rq_7BR_1SsOzuMc32R15-Q",
+          "track": "MdNAQekzQSePFpnD55PUbw"
+        },
+        "uid": "SeamcMRxSTiDAPTzfuvhjQ"
+      }
+    }
+  }
+}
+
+    const hgApi = hglib.viewer(
+      document.getElementById("demo"),
+      viewconf,
+      { bounded: true }
+    );
+  </script>
+</html>

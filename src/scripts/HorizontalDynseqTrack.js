@@ -209,10 +209,8 @@ export default function HDT(HGC, ...args) {
         for (let i = 0; i < sequence.length; i++) {
           let letter = sequence[i];
 
-          if (this.options && this.options.reverseComplement) {
-            if (revComps[letter]) {
-              letter = revComps[letter];
-            }
+          if (this.options && this.options.reverseComplement && revComps[letter]) {
+            letter = revComps[letter];
           }
 
           const charInd = (letter.charCodeAt(0) & 95) - 65;
