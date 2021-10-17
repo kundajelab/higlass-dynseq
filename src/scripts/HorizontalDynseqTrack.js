@@ -227,10 +227,6 @@ export default function HDT(HGC, ...args) {
 
           let displayPos = i;
 
-          if (this.options && this.options.zeroBasedCoords) {
-            displayPos = i - 1;
-          }
-
           const xPos = this._xScale(tileXScale(displayPos)) + width;
           const yPos = this.valueScale(dataValue + offsetValue);
           if (tileXScale(i) > this.tilesetInfo.max_pos[0]) {
@@ -284,9 +280,11 @@ export default function HDT(HGC, ...args) {
       /**
        * The tile identifier used on the server
        */
-      const remoteId = this.dataFetcher.dataConfig.chromOrderSource
-        ? `${tile.join('.')}|cos:${this.dataFetcher.dataConfig.chromOrderSource}`
-        : `${tile.join('.')}`;
+      let remoteId = `${tile.join('.')}`;
+
+      if (this.options && this.options.zeroBasedCoords) {
+        remoteId += '|zbc:1';
+      }
 
       console.log('remoteId', remoteId);
       // tile contains [zoomLevel, xPos]
