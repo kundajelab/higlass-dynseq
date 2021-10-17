@@ -1,6 +1,18 @@
 // Higher value = more memory and slightly worse startup performance
 // However, this yields clearer characters, especially when stretched
 const LARGE_FONT_SIZE = 200;
+const revComps = {
+  a: 't',
+  c: 'g',
+  g: 'c',
+  t: 'a',
+  n: 'n',
+  A: 'T',
+  C: 'G',
+  G: 'C',
+  T: 'A',
+  N: 'N',
+};
 
 export default function HDT(HGC, ...args) {
   if (!(this instanceof HDT)) {
@@ -197,7 +209,13 @@ export default function HDT(HGC, ...args) {
       }
       if (seqContainer.alpha) {
         for (let i = 0; i < sequence.length; i++) {
-          const charInd = (sequence.charCodeAt(i) & 95) - 65;
+          let letter = sequence[i];
+
+          if (this.options && this.options.reverseComplement && revComps[letter]) {
+            letter = revComps[letter];
+          }
+
+          const charInd = (letter.charCodeAt(0) & 95) - 65;
           const dataLoc = (i / sequence.length) * data.length;
           const dataInd = Math.floor(dataLoc);
           const nextDataInd = dataInd + 1;
@@ -444,6 +462,7 @@ HDT.config = {
     'showTooltip',
     'mousePositionColor',
     'minHeight',
+    'reverseComplement',
   ],
   defaultOptions: {
     labelColor: 'black',
@@ -467,6 +486,7 @@ HDT.config = {
     minHeight: 20,
     mousePositionColor: '#000000',
     showTooltip: false,
+    reverseComplement: false,
     /* TODO: include?
     fontFamily: 'Arial',
     fontColors: {
@@ -478,5 +498,20 @@ HDT.config = {
     },
     defaultFontColor: '#ffb347'
     */
+  },
+  optionsInfo: {
+    reverseComplement: {
+      name: 'Reverse complement',
+      inlineOptions: {
+        yes: {
+          value: true,
+          name: 'Yes',
+        },
+        no: {
+          value: false,
+          name: 'No',
+        },
+      },
+    },
   },
 };
