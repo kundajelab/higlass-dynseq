@@ -225,7 +225,13 @@ export default function HDT(HGC, ...args) {
             (nextDataInd - dataLoc) * (data[nextDataInd] || data[dataInd] || 0);
           const sprite = new HGC.libraries.PIXI.Sprite(this.chars[charInd]);
 
-          const xPos = this._xScale(tileXScale(i)) + width;
+          let displayPos = i;
+
+          if (this.options && this.options.zeroBasedCoords) {
+            displayPos = i - 1;
+          }
+
+          const xPos = this._xScale(tileXScale(displayPos)) + width;
           const yPos = this.valueScale(dataValue + offsetValue);
           if (tileXScale(i) > this.tilesetInfo.max_pos[0]) {
             // Data is in the last tile and extends beyond the coordinate system.
@@ -272,6 +278,19 @@ export default function HDT(HGC, ...args) {
           }
         }
       }
+    }
+
+    tileToRemoteId(tile) {
+      /**
+       * The tile identifier used on the server
+       */
+      const remoteId = this.dataFetcher.dataConfig.chromOrderSource
+        ? `${tile.join('.')}|cos:${this.dataFetcher.dataConfig.chromOrderSource}`
+        : `${tile.join('.')}`;
+
+      console.log('remoteId', remoteId);
+      // tile contains [zoomLevel, xPos]
+      return remoteId;
     }
 
     // Copied from HorizonatalLine1DPixiTrack.js
@@ -463,6 +482,7 @@ HDT.config = {
     'mousePositionColor',
     'minHeight',
     'reverseComplement',
+    'zeroBasedCoords',
   ],
   defaultOptions: {
     labelColor: 'black',
@@ -487,6 +507,7 @@ HDT.config = {
     mousePositionColor: '#000000',
     showTooltip: false,
     reverseComplement: false,
+    zeroBasedCoords: false,
     /* TODO: include?
     fontFamily: 'Arial',
     fontColors: {
@@ -502,6 +523,18 @@ HDT.config = {
   optionsInfo: {
     reverseComplement: {
       name: 'Reverse complement',
+            inlineOptions: {
+        yes: {
+          value: true,
+          name: 'Yes',
+        },
+        no: {
+          value: false,
+          name: 'No',
+        },
+      },
+    zeroBasedCoords: {
+      name: 'Zero-based coordinates',
       inlineOptions: {
         yes: {
           value: true,
