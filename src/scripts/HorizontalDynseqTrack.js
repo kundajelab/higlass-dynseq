@@ -216,9 +216,9 @@ export default function HDT(HGC, ...args) {
           }
 
           const charInd = (letter.charCodeAt(0) & 95) - 65;
-          const dataLoc = (i / sequence.length) * data.length;
+          const dataLoc = (i / (sequence.length - 1)) * (data.length - 1);
           const dataInd = Math.floor(dataLoc);
-          const nextDataInd = dataInd + 1;
+          const nextDataInd = Math.ceil(dataLoc);
           // Linear interpolation between values
           const dataValue =
             (dataLoc - dataInd) * (data[dataInd] || 0) +
