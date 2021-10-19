@@ -19,6 +19,7 @@
     "higlass-register": "^0.3.0"
   },
   "devDependencies": {
-    "microbundle": "^0.13.3"
+    "microbundle": "^0.13.3",
+    "prettier": "^2.4.1"
   }
 }

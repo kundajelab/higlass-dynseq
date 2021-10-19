@@ -3,7 +3,7 @@ import HorizontalDynseqTrack from './scripts/HorizontalDynseqTrack';
 
 register({
   track: HorizontalDynseqTrack,
-  config: HorizontalDynseqTrack.config
+  config: HorizontalDynseqTrack.config,
 });
 
 export default HorizontalDynseqTrack;
