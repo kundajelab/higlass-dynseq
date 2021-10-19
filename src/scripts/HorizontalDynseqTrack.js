@@ -186,7 +186,8 @@ export default function HDT(HGC, ...args) {
         .scaleLinear()
         .domain([0, dlen])
         .range([tileX, tileX + tileWidth]);
-      const width = (this._xScale(tileX + tileWidth) - this._xScale(tileX)) / dlen;
+      let width = (this._xScale(tileX + tileWidth) - this._xScale(tileX)) / dlen;
+
       const middle = this.valueScale(offsetValue);
       const maxFontSize = this.options.maxFontSize || this.dimensions[1] / 2;
       const minFontSize = this.options.minFontSize || 2;
@@ -196,6 +197,10 @@ export default function HDT(HGC, ...args) {
         maxFontSize / LARGE_FONT_SIZE,
       );
       const simFontSize = scaleChange * LARGE_FONT_SIZE;
+
+      if (this.options && this.options.zeroBasedSeq) {
+        width = 0;
+      }
 
       if (!sequence || simFontSize < minFontSize) {
         seqContainer.alpha = 0;
@@ -216,7 +221,7 @@ export default function HDT(HGC, ...args) {
           }
 
           const charInd = (letter.charCodeAt(0) & 95) - 65;
-          const dataLoc = (i / (sequence.length - 1)) * (data.length - 1);
+          const dataLoc = (i / sequence.length) * data.length;
           const dataInd = Math.floor(dataLoc);
           const nextDataInd = dataInd + 1;
           // Linear interpolation between values
@@ -274,21 +279,6 @@ export default function HDT(HGC, ...args) {
           }
         }
       }
-    }
-
-    tileToRemoteId(tile) {
-      /**
-       * The tile identifier used on the server
-       */
-      let remoteId = `${tile.join('.')}`;
-
-      if (this.options && this.options.zeroBasedCoords) {
-        remoteId += '|zbc:1';
-      }
-
-      console.log('remoteId', remoteId);
-      // tile contains [zoomLevel, xPos]
-      return remoteId;
     }
 
     // Copied from HorizonatalLine1DPixiTrack.js
@@ -480,7 +470,7 @@ HDT.config = {
     'mousePositionColor',
     'minHeight',
     'reverseComplement',
-    'zeroBasedCoords',
+    'zeroBasedSeq',
   ],
   defaultOptions: {
     labelColor: 'black',
@@ -505,7 +495,7 @@ HDT.config = {
     mousePositionColor: '#000000',
     showTooltip: false,
     reverseComplement: false,
-    zeroBasedCoords: false,
+    zeroBasedSeq: false,
     /* TODO: include?
     fontFamily: 'Arial',
     fontColors: {
@@ -521,7 +511,7 @@ HDT.config = {
   optionsInfo: {
     reverseComplement: {
       name: 'Reverse complement',
-            inlineOptions: {
+      inlineOptions: {
         yes: {
           value: true,
           name: 'Yes',
@@ -531,8 +521,9 @@ HDT.config = {
           name: 'No',
         },
       },
-    zeroBasedCoords: {
-      name: 'Zero-based coordinates',
+    },
+    zeroBasedSeq: {
+      name: 'Zero-based sequence',
       inlineOptions: {
         yes: {
           value: true,
