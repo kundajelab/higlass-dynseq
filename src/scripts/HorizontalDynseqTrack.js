@@ -218,11 +218,11 @@ export default function HDT(HGC, ...args) {
           const charInd = (letter.charCodeAt(0) & 95) - 65;
           const dataLoc = (i / (sequence.length - 1)) * (data.length - 1);
           const dataInd = Math.floor(dataLoc);
-          const nextDataInd = Math.ceil(dataLoc);
+          const nextDataInd = dataInd + 1;
           // Linear interpolation between values
           const dataValue =
-            (dataLoc - dataInd) * (data[dataInd] || 0) +
-            (nextDataInd - dataLoc) * (data[nextDataInd] || 0);
+            (dataLoc - dataInd) * (data[dataInd] || data[nextDataInd] || 0) +
+            (nextDataInd - dataLoc) * (data[nextDataInd] || data[dataInd] || 0);
           const sprite = new HGC.libraries.PIXI.Sprite(this.chars[charInd]);
 
           const xPos = this._xScale(tileXScale(i)) + width;
