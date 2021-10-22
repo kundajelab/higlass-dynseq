@@ -190,8 +190,8 @@ export default function HDT(HGC, ...args) {
 
       const middle = this.valueScale(offsetValue);
       const maxFontSize = this.options.maxFontSize || this.dimensions[1] / 2;
-      const minFontSize = this.options.minFontSize || 2;
-      const fadeOutFontSize = Math.max(this.options.fadeOutFontSize || 8, minFontSize + 0.01);
+      const minFontSize = this.options.minFontSize || 1.5;
+      const fadeOutFontSize = Math.max(this.options.fadeOutFontSize || 5, minFontSize + 0.01);
       const scaleChange = Math.min(
         width / (this.options.nonStandardSequence ? this.maxCharWidth : this.maxStandardCharWidth),
         maxFontSize / LARGE_FONT_SIZE,
@@ -223,11 +223,8 @@ export default function HDT(HGC, ...args) {
           const charInd = (letter.charCodeAt(0) & 95) - 65;
           const dataLoc = (i / sequence.length) * data.length;
           const dataInd = Math.floor(dataLoc);
-          const nextDataInd = dataInd + 1;
-          // Linear interpolation between values
-          const dataValue =
-            (dataLoc - dataInd) * (data[dataInd] || data[nextDataInd] || 0) +
-            (nextDataInd - dataLoc) * (data[nextDataInd] || data[dataInd] || 0);
+          const dataValue = data[dataLoc];
+
           const sprite = new HGC.libraries.PIXI.Sprite(this.chars[charInd]);
 
           let displayPos = i;
@@ -429,6 +426,12 @@ export default function HDT(HGC, ...args) {
 const svgIcon =
   '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="1.5"><path d="M4 2.1L.5 3.5v12l5-2 5 2 5-2v-12l-5 2-3.17-1.268" fill="none" stroke="currentColor"/><path d="M10.5 3.5v12" fill="none" stroke="currentColor" stroke-opacity=".33" stroke-dasharray="1,2,0,0"/><path d="M5.5 13.5V6" fill="none" stroke="currentColor" stroke-opacity=".33" stroke-width=".9969299999999999" stroke-dasharray="1.71,3.43,0,0"/><path d="M9.03 5l.053.003.054.006.054.008.054.012.052.015.052.017.05.02.05.024 4 2 .048.026.048.03.046.03.044.034.042.037.04.04.037.04.036.042.032.045.03.047.028.048.025.05.022.05.02.053.016.053.014.055.01.055.007.055.005.055v.056l-.002.056-.005.055-.008.055-.01.055-.015.054-.017.054-.02.052-.023.05-.026.05-.028.048-.03.046-.035.044-.035.043-.038.04-4 4-.04.037-.04.036-.044.032-.045.03-.046.03-.048.024-.05.023-.05.02-.052.016-.052.015-.053.012-.054.01-.054.005-.055.003H8.97l-.053-.003-.054-.006-.054-.008-.054-.012-.052-.015-.052-.017-.05-.02-.05-.024-4-2-.048-.026-.048-.03-.046-.03-.044-.034-.042-.037-.04-.04-.037-.04-.036-.042-.032-.045-.03-.047-.028-.048-.025-.05-.022-.05-.02-.053-.016-.053-.014-.055-.01-.055-.007-.055L4 10.05v-.056l.002-.056.005-.055.008-.055.01-.055.015-.054.017-.054.02-.052.023-.05.026-.05.028-.048.03-.046.035-.044.035-.043.038-.04 4-4 .04-.037.04-.036.044-.032.045-.03.046-.03.048-.024.05-.023.05-.02.052-.016.052-.015.053-.012.054-.01.054-.005L8.976 5h.054zM5 10l4 2 4-4-4-2-4 4z" fill="currentColor"/><path d="M7.124 0C7.884 0 8.5.616 8.5 1.376v3.748c0 .76-.616 1.376-1.376 1.376H3.876c-.76 0-1.376-.616-1.376-1.376V1.376C2.5.616 3.116 0 3.876 0h3.248zm.56 5.295L5.965 1H5.05L3.375 5.295h.92l.354-.976h1.716l.375.975h.945zm-1.596-1.7l-.592-1.593-.58 1.594h1.172z" fill="currentColor"/></svg>';
 
+const sizesInPx = (sizes, unit = '', multiplier = 1) =>
+  sizes.reduce((sizeOption, size) => {
+    sizeOption[size] = { name: `${size * multiplier}${unit}`, value: size };
+    return sizeOption;
+  }, {});
+
 HDT.config = {
   type: 'horizontal-dynseq',
   datatype: ['vector'],
@@ -509,6 +512,18 @@ HDT.config = {
     */
   },
   optionsInfo: {
+    minFontSize: {
+      name: 'Min font size',
+      inlineOptions: sizesInPx([1, 2, 3, 5, 8, 13, 21, 34, 55], 'px'),
+    },
+    maxFontSize: {
+      name: 'Max font size',
+      inlineOptions: sizesInPx([1, 2, 3, 5, 8, 13, 21, 34, 55], 'px'),
+    },
+    fadeOutFontSize: {
+      name: 'Fade out font size',
+      inlineOptions: sizesInPx([1, 2, 3, 5, 8, 13, 21, 34, 55], 'px'),
+    },
     reverseComplement: {
       name: 'Reverse complement',
       inlineOptions: {
