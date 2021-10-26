@@ -199,8 +199,8 @@ export default function HDT(HGC, ...args) {
 
       const middle = this.valueScale(offsetValue);
       const maxFontSize = this.options.maxFontSize || this.dimensions[1] / 2;
-      const minFontSize = this.options.minFontSize || 2;
-      const fadeOutFontSize = Math.max(this.options.fadeOutFontSize || 4, minFontSize + 0.01);
+      const minFontSize = this.options.minFontSize || 1.5;
+      const fadeOutFontSize = Math.max(this.options.fadeOutFontSize || 5, minFontSize + 0.01);
       const scaleChange = Math.min(
         width / (this.options.nonStandardSequence ? this.maxCharWidth : this.maxStandardCharWidth),
         maxFontSize / LARGE_FONT_SIZE,
