@@ -14,6 +14,9 @@ const revComps = {
   N: 'N',
 };
 
+let charWidths = {};
+let texts = {};
+
 export default function HDT(HGC, ...args) {
   if (!(this instanceof HDT)) {
     throw new TypeError('Class constructor cannot be invoked without "new"');
@@ -123,18 +126,24 @@ export default function HDT(HGC, ...args) {
       this.maxCharWidth = 0;
       this.maxStandardCharWidth = 0;
       this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((char) => {
-        const text = new HGC.libraries.PIXI.Text(char, {
-          ...textOptions,
-          fill: HGC.utils.colorToHex(fontColors[char] || newOptions.defaultFontColor || '#ffb347'),
-          trim: true,
-        });
+        const text =
+          texts[char] ||
+          new HGC.libraries.PIXI.Text(char, {
+            ...textOptions,
+            fill: HGC.utils.colorToHex(
+              fontColors[char] || newOptions.defaultFontColor || '#ffb347',
+            ),
+            trim: true,
+          });
+        texts[char] = text;
         // NOTE: text.getBounds() has the important side-effect of pre-rendering
         // the Pixi texture ("filling" the actual texture object)
         // Do not remove text.getBounds()!
-        const charWidth = text.getBounds().width;
-        this.maxCharWidth = Math.max(this.maxCharWidth, charWidth);
+        charWidths[char] = charWidths[char] || text.getBounds().width;
+
+        this.maxCharWidth = Math.max(this.maxCharWidth, charWidths[char]);
         if ('ATCGN'.includes(char)) {
-          this.maxStandardCharWidth = Math.max(this.maxStandardCharWidth, charWidth);
+          this.maxStandardCharWidth = Math.max(this.maxStandardCharWidth, charWidths[char]);
         }
         return text.texture;
       });
@@ -190,8 +199,8 @@ export default function HDT(HGC, ...args) {
 
       const middle = this.valueScale(offsetValue);
       const maxFontSize = this.options.maxFontSize || this.dimensions[1] / 2;
-      const minFontSize = this.options.minFontSize || 1.5;
-      const fadeOutFontSize = Math.max(this.options.fadeOutFontSize || 5, minFontSize + 0.01);
+      const minFontSize = this.options.minFontSize || 2;
+      const fadeOutFontSize = Math.max(this.options.fadeOutFontSize || 4, minFontSize + 0.01);
       const scaleChange = Math.min(
         width / (this.options.nonStandardSequence ? this.maxCharWidth : this.maxStandardCharWidth),
         maxFontSize / LARGE_FONT_SIZE,
