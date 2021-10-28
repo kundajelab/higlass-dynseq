@@ -74,7 +74,7 @@ These options are available (beyond the standard ones such as `labelColor` and `
   // Set to true if the sequence has more than A, T, C, G, N
   "nonStandardSequence": false,
   "fontFamily": "Arial",
-  // Colors for each character
+  // Colors for each character (must be uppercase)
   "fontColors": {
     "A": "#89c738",
     "T": "#9238c7",

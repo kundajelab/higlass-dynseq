@@ -1,18 +1,12 @@
 // Higher value = more memory and slightly worse startup performance
 // However, this yields clearer characters, especially when stretched
 const LARGE_FONT_SIZE = 200;
-const revComps = {
-  a: 't',
-  c: 'g',
-  g: 'c',
-  t: 'a',
-  n: 'n',
-  A: 'T',
-  C: 'G',
-  G: 'C',
-  T: 'A',
-  N: 'N',
-};
+
+// Index in A-Z mapping to reverse complement
+const revComps = new Uint8Array([
+  19, 1, 6, 3, 4, 5, 2, 7, 8, 9, 10, 11, 12, 13,
+  14, 15, 16, 17, 18, 0, 20, 21, 22, 23, 24, 25
+]);
 
 export default function HDT(HGC, ...args) {
   if (!(this instanceof HDT)) {
@@ -121,22 +115,20 @@ export default function HDT(HGC, ...args) {
       this.fontColors = fontColors;
 
       this.maxCharWidth = 0;
-      this.maxStandardCharWidth = 0;
       this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((char) => {
-        const text = new HGC.libraries.PIXI.Text(char, {
-          ...textOptions,
-          fill: HGC.utils.colorToHex(fontColors[char] || newOptions.defaultFontColor || '#ffb347'),
-          trim: true,
-        });
-        // NOTE: text.getBounds() has the important side-effect of pre-rendering
-        // the Pixi texture ("filling" the actual texture object)
-        // Do not remove text.getBounds()!
-        const charWidth = text.getBounds().width;
-        this.maxCharWidth = Math.max(this.maxCharWidth, charWidth);
-        if ('ATCGN'.includes(char)) {
-          this.maxStandardCharWidth = Math.max(this.maxStandardCharWidth, charWidth);
+        if (newOptions.nonStandardSequence || 'ATCGN'.includes(char)) {
+          const text = new HGC.libraries.PIXI.Text(char, {
+            ...textOptions,
+            fill: HGC.utils.colorToHex(fontColors[char] || newOptions.defaultFontColor || '#ffb347'),
+            trim: true,
+          });
+          // NOTE: text.getBounds() has the important side-effect of pre-rendering
+          // the Pixi texture ("filling" the actual texture object)
+          // Do not remove text.getBounds()!
+          const charWidth = text.getBounds().width;
+          this.maxCharWidth = Math.max(this.maxCharWidth, charWidth);
+          return text.texture;
         }
-        return text.texture;
       });
     }
 
@@ -193,14 +185,10 @@ export default function HDT(HGC, ...args) {
       const minFontSize = this.options.minFontSize || 1.5;
       const fadeOutFontSize = Math.max(this.options.fadeOutFontSize || 5, minFontSize + 0.01);
       const scaleChange = Math.min(
-        width / (this.options.nonStandardSequence ? this.maxCharWidth : this.maxStandardCharWidth),
+        width / this.maxCharWidth,
         maxFontSize / LARGE_FONT_SIZE,
       );
       const simFontSize = scaleChange * LARGE_FONT_SIZE;
-
-      if (this.options && this.options.zeroBasedSeq) {
-        width = 0;
-      }
 
       if (!sequence || simFontSize < minFontSize) {
         seqContainer.alpha = 0;
@@ -214,22 +202,26 @@ export default function HDT(HGC, ...args) {
       }
       if (seqContainer.alpha) {
         for (let i = 0; i < sequence.length; i++) {
-          let letter = sequence[i];
+          let charInd = (sequence.charCodeAt(i) & 95) - 65;
 
-          if (this.options && this.options.reverseComplement && revComps[letter]) {
-            letter = revComps[letter];
+          if (this.options.reverseComplement) {
+            charInd = revComps[charInd];
           }
 
-          const charInd = (letter.charCodeAt(0) & 95) - 65;
-          const dataLoc = (i / sequence.length) * data.length;
+          const dataLoc = (i / (sequence.length - 1)) * (data.length - 1);
           const dataInd = Math.floor(dataLoc);
-          const dataValue = data[dataLoc];
+          const nextDataInd = dataInd + 1;
+
+          // Linear interpolation between values
+          // (dataLoc - dataInd) is short form for (1 - (nextDataInd - dataLoc))
+          // and vice versa
+          const dataValue =
+            (dataLoc - dataInd) * (data[nextDataInd] || 0) +
+            (nextDataInd - dataLoc) * (data[dataInd] || 0);
 
           const sprite = new HGC.libraries.PIXI.Sprite(this.chars[charInd]);
 
-          let displayPos = i;
-
-          const xPos = this._xScale(tileXScale(displayPos)) + width;
+          const xPos = this._xScale(tileXScale(i));
           const yPos = this.valueScale(dataValue + offsetValue);
           if (tileXScale(i) > this.tilesetInfo.max_pos[0]) {
             // Data is in the last tile and extends beyond the coordinate system.
@@ -242,12 +234,10 @@ export default function HDT(HGC, ...args) {
           sprite.position.x = xPos;
           sprite.position.y = middle;
           sprite.scale.set(scaleChange, (middle - yPos) / sprite.height);
-          // sprite.anchor.set(0, 1);
           sprite.anchor.set(0.5, 1);
-          sprite.letter = String.fromCharCode(sequence.charCodeAt(i));
+          sprite.charInd = charInd;
 
           seqContainer.addChild(sprite);
-          // graphics.lineStyle(1, 0x000000)[i ? 'lineTo' : 'moveTo'](xPos, this.valueScale(dataValue + offsetValue));
         }
       }
       if (lineGraphics.alpha) {
@@ -396,7 +386,7 @@ export default function HDT(HGC, ...args) {
 
         // Then we'll draw each individual letter
         for (let sprite of tile.seqContainer.children) {
-          const letter = sprite.letter;
+          const letter = String.fromCharCode(sprite.charInd + 65);
           const g = document.createElement('g');
           const text = document.createElement('text');
 
@@ -426,11 +416,13 @@ export default function HDT(HGC, ...args) {
 const svgIcon =
   '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="1.5"><path d="M4 2.1L.5 3.5v12l5-2 5 2 5-2v-12l-5 2-3.17-1.268" fill="none" stroke="currentColor"/><path d="M10.5 3.5v12" fill="none" stroke="currentColor" stroke-opacity=".33" stroke-dasharray="1,2,0,0"/><path d="M5.5 13.5V6" fill="none" stroke="currentColor" stroke-opacity=".33" stroke-width=".9969299999999999" stroke-dasharray="1.71,3.43,0,0"/><path d="M9.03 5l.053.003.054.006.054.008.054.012.052.015.052.017.05.02.05.024 4 2 .048.026.048.03.046.03.044.034.042.037.04.04.037.04.036.042.032.045.03.047.028.048.025.05.022.05.02.053.016.053.014.055.01.055.007.055.005.055v.056l-.002.056-.005.055-.008.055-.01.055-.015.054-.017.054-.02.052-.023.05-.026.05-.028.048-.03.046-.035.044-.035.043-.038.04-4 4-.04.037-.04.036-.044.032-.045.03-.046.03-.048.024-.05.023-.05.02-.052.016-.052.015-.053.012-.054.01-.054.005-.055.003H8.97l-.053-.003-.054-.006-.054-.008-.054-.012-.052-.015-.052-.017-.05-.02-.05-.024-4-2-.048-.026-.048-.03-.046-.03-.044-.034-.042-.037-.04-.04-.037-.04-.036-.042-.032-.045-.03-.047-.028-.048-.025-.05-.022-.05-.02-.053-.016-.053-.014-.055-.01-.055-.007-.055L4 10.05v-.056l.002-.056.005-.055.008-.055.01-.055.015-.054.017-.054.02-.052.023-.05.026-.05.028-.048.03-.046.035-.044.035-.043.038-.04 4-4 .04-.037.04-.036.044-.032.045-.03.046-.03.048-.024.05-.023.05-.02.052-.016.052-.015.053-.012.054-.01.054-.005L8.976 5h.054zM5 10l4 2 4-4-4-2-4 4z" fill="currentColor"/><path d="M7.124 0C7.884 0 8.5.616 8.5 1.376v3.748c0 .76-.616 1.376-1.376 1.376H3.876c-.76 0-1.376-.616-1.376-1.376V1.376C2.5.616 3.116 0 3.876 0h3.248zm.56 5.295L5.965 1H5.05L3.375 5.295h.92l.354-.976h1.716l.375.975h.945zm-1.596-1.7l-.592-1.593-.58 1.594h1.172z" fill="currentColor"/></svg>';
 
-const sizesInPx = (sizes, unit = '', multiplier = 1) =>
-  sizes.reduce((sizeOption, size) => {
-    sizeOption[size] = { name: `${size * multiplier}${unit}`, value: size };
-    return sizeOption;
-  }, {});
+const pxSizes = (sizes) => {
+  const options = {};
+  for (const size of sizes) {
+    options[size] = { name: size + 'px', value: size }
+  }
+  return options;
+};
 
 HDT.config = {
   type: 'horizontal-dynseq',
@@ -473,7 +465,6 @@ HDT.config = {
     'mousePositionColor',
     'minHeight',
     'reverseComplement',
-    'zeroBasedSeq',
   ],
   defaultOptions: {
     labelColor: 'black',
@@ -498,31 +489,20 @@ HDT.config = {
     mousePositionColor: '#000000',
     showTooltip: false,
     reverseComplement: false,
-    zeroBasedSeq: false,
-    /* TODO: include?
-    fontFamily: 'Arial',
-    fontColors: {
-      A: 'rgb(137, 199, 56)',
-      T: 'rgb(146, 56, 199)',
-      C: 'rgb(224, 81, 68)',
-      G: 'rgb(56, 153, 199)',
-      N: 'rgb(133, 133, 133)'
-    },
-    defaultFontColor: '#ffb347'
-    */
+    nonStandardSequence: false
   },
   optionsInfo: {
     minFontSize: {
       name: 'Min font size',
-      inlineOptions: sizesInPx([1, 2, 3, 5, 8, 13, 21, 34, 55], 'px'),
+      inlineOptions: pxSizes([1, 2, 3, 5, 8, 13, 21, 34, 55]),
     },
     maxFontSize: {
       name: 'Max font size',
-      inlineOptions: sizesInPx([1, 2, 3, 5, 8, 13, 21, 34, 55], 'px'),
+      inlineOptions: pxSizes([1, 2, 3, 5, 8, 13, 21, 34, 55]),
     },
     fadeOutFontSize: {
       name: 'Fade out font size',
-      inlineOptions: sizesInPx([1, 2, 3, 5, 8, 13, 21, 34, 55], 'px'),
+      inlineOptions: pxSizes([1, 2, 3, 5, 8, 13, 21, 34, 55]),
     },
     reverseComplement: {
       name: 'Reverse complement',
@@ -537,8 +517,8 @@ HDT.config = {
         },
       },
     },
-    zeroBasedSeq: {
-      name: 'Zero-based sequence',
+    nonStandardSequence: {
+      name: 'Non-standard sequence',
       inlineOptions: {
         yes: {
           value: true,
