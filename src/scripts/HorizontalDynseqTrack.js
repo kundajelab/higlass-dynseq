@@ -32,6 +32,8 @@ const revComps = new Uint8Array([
   25,
 ]);
 
+const fontCache = {};
+
 export default function HDT(HGC, ...args) {
   if (!(this instanceof HDT)) {
     throw new TypeError('Class constructor cannot be invoked without "new"');
@@ -141,19 +143,25 @@ export default function HDT(HGC, ...args) {
       this.maxCharWidth = 0;
       this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(char => {
         if (newOptions.nonStandardSequence || 'ATCGN'.includes(char)) {
-          const text = new HGC.libraries.PIXI.Text(char, {
-            ...textOptions,
-            fill: HGC.utils.colorToHex(
-              fontColors[char] || newOptions.defaultFontColor || '#ffb347',
-            ),
-            trim: true,
-          });
-          // NOTE: text.getBounds() has the important side-effect of pre-rendering
-          // the Pixi texture ("filling" the actual texture object)
-          // Do not remove text.getBounds()!
-          const charWidth = text.getBounds().width;
-          this.maxCharWidth = Math.max(this.maxCharWidth, charWidth);
-          return text.texture;
+          const fill = HGC.utils.colorToHex(
+            fontColors[char] || newOptions.defaultFontColor || '#ffb347',
+          );
+          const cacheID = char + fill;
+          let texture = fontCache[cacheID];
+          if (!texture) {
+            const text = new HGC.libraries.PIXI.Text(char, {
+              ...textOptions,
+              trim: true,
+              fill,
+            });
+            // text.updateText() pre-renders the Pixi texture,
+            // "filling" the actual texture object
+            text.updateText();
+            // Could potentially use a WeakMap here for automatic GC
+            fontCache[cacheID] = texture = text.texture;
+          }
+          this.maxCharWidth = Math.max(this.maxCharWidth, texture.width);
+          return texture;
         }
       });
     }
