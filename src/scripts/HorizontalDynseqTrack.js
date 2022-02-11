@@ -214,7 +214,11 @@ export default function HDT(HGC, ...args) {
         .range([tileX, tileX + tileWidth]);
       let width = (this._xScale(tileX + tileWidth) - this._xScale(tileX)) / dlen;
 
-      const middle = this.valueScale(offsetValue);
+      if (this.valueScale.domain()[0] > 0) {
+        // Always extend the scale down to 0 to prevent boundary clipping
+        this.valueScale = this.valueScale.domain([0, this.valueScale.domain()[1]]);
+      }
+      const middle = this.valueScale.range()[0];
       const maxFontSize = this.options.maxFontSize || this.dimensions[1] / 2;
       const minFontSize = this.options.minFontSize || 1.5;
       const fadeOutFontSize = Math.max(this.options.fadeOutFontSize || 5, minFontSize + 0.01);
