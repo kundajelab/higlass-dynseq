@@ -287,10 +287,21 @@ export default function HDT(HGC, ...args) {
               .range([tileX, tileX + tileWidth])
           : tileXScale;
         lineGraphics.lineStyle(strokeWidth, strokeColor);
+        let broken = false;
+
         for (let i = 0; i < data.length; i++) {
           const xPos = this._xScale(datXScale(i));
           const yPos = this.valueScale(data[i] + offsetValue);
-          if (yPos != middle && i) {
+
+          if (isNaN(yPos)) {
+            // Sometimes a line will return NaN values which we don't
+            // want to include in the SVG output. So we'll discontinue
+            // the line and start it again later.
+            broken = true;
+            continue;
+          }
+
+          if (yPos != middle && i && !broken) {
             lineGraphics.lineTo(xPos, yPos);
             // We'll store a representation of the line as an SVG path
             // so that we can use it in exportSVG.
@@ -298,6 +309,8 @@ export default function HDT(HGC, ...args) {
           } else {
             lineGraphics.moveTo(xPos, yPos);
             tile.path += `M${xPos},${yPos}`;
+
+            broken = false;
           }
         }
       }
